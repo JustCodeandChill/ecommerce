@@ -1,10 +1,10 @@
 import {useEffect, useState} from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import '../styles/App.css'
+import {Product} from "../models/product.ts";
+// import {Product} from "./app/models/product.ts";
 
 function App() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   useEffect(() => {
       const fetchData = async () => {
           try {
@@ -26,7 +26,7 @@ function App() {
     <>
         <div>
             <h1>Sport center</h1>
-            <ul>
+            <ul style={{textAlign: "left"}}>
                 {
                     products.map(product => {
                         return <li key={product.id}>
@@ -35,6 +35,7 @@ function App() {
                             <p>Description: {product.description}</p>
                             <p>Brand: {product.brandName}</p>
                             <p>Type: {product.typeName}</p>
+                            <p>Image: {product.imageUrl}</p>
                         </li>
                     })
                 }

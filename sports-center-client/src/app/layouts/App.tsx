@@ -1,15 +1,18 @@
 import '../styles/App.css'
 import Catalog from "../features/catalog/Catalog.tsx";
+import {AppBar, Container, CssBaseline} from "@mui/material";
+import Header from "./Header.tsx";
 // import {Product} from "./app/models/product.ts";
 
 function App() {
 
   return (
     <>
-        <div>
-            <h1>Sport center</h1>
-            <Catalog/>
-        </div>
+        <CssBaseline></CssBaseline>
+        <Header></Header>
+        <Container>
+            <Catalog></Catalog>
+        </Container>
     </>
   )
 }

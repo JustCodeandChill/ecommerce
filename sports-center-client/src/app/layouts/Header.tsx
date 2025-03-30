@@ -1,12 +1,17 @@
-import {AppBar, Toolbar, Typography} from "@mui/material";
+import {AppBar, Switch, Toolbar, Typography} from "@mui/material";
 
-const Header = () => {
+interface Props {
+    darkMode: boolean;
+    handleThemeChange: () => void;
+}
+const Header = ({darkMode, handleThemeChange}: Props) => {
     return (
-      <AppBar position="static">
+      <AppBar position="sticky" sx={{mb: 2}}>
          <Toolbar variant="dense">
              <Typography>
                  Sports Center
              </Typography>
+         <Switch checked={darkMode} onChange={handleThemeChange}></Switch>
          </Toolbar>
       </AppBar>
     );

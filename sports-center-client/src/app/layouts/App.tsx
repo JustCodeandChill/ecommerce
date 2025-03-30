@@ -1,8 +1,9 @@
 import '../styles/App.css'
-import Catalog from "../features/catalog/Catalog.tsx";
 import {AppBar, Container, createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import Header from "./Header.tsx";
 import useCustomTheme from "../hooks/useCustomTheme.jsx";
+import {Outlet} from "react-router-dom";
+
 // import {Product} from "./app/models/product.ts";
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
             <CssBaseline></CssBaseline>
             <Header darkMode= {darkMode} handleThemeChange= {handleThemeChange}></Header>
             <Container>
-                <Catalog></Catalog>
+                <Outlet />
             </Container>
         </ThemeProvider>
 

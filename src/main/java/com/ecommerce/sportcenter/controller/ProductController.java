@@ -37,13 +37,13 @@ public class ProductController {
         return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @RequestParam(name = "page", defaultValue = "0") int pageIndex,
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "brandId") int brandId,
-            @RequestParam(name = "typeId") int typeId,
+            @RequestParam(name = "brandId", required = false) Integer brandId,
+            @RequestParam(name = "typeId", required = false) Integer typeId,
             @RequestParam(name = "sort", defaultValue = "name") String sort,
             @RequestParam(name = "order", defaultValue = "asc") String order
 

@@ -1,5 +1,6 @@
-import Axios, {AxiosResponse} from "axios";
+import Axios, {AxiosError, AxiosResponse} from "axios";
 import {setupCache} from "axios-cache-interceptor";
+import {useNavigate} from "react-router-dom";
 
 const axiosInstance = Axios.create();
 const axios = setupCache(axiosInstance);
@@ -7,6 +8,27 @@ const axios = setupCache(axiosInstance);
 axios.defaults.baseURL = 'http://localhost:8081/api/';
 
 const responseBody = (response: AxiosResponse) => response.data;
+
+
+axios.interceptors.response.use(async (response) => {
+    return response;
+}, (error: AxiosError) => {
+    const {status} = error.response as AxiosResponse;
+    switch (status) {
+        case 404:
+            console.log("Resources not found");
+            navigate('not-found');
+            break;
+        case 500:
+            console.log("Internal server error");
+            navigate('/server-error');
+            break;
+        default:
+            break;
+    }
+
+    return Promise.reject(error.message);
+})
 
 const requests = {
     get: (url: string) => axios.get(url).then(responseBody),

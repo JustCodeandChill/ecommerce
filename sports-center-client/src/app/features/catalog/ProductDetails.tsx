@@ -6,6 +6,7 @@ import { Product } from "../../models/product.ts";
 import {setupCache} from "axios-cache-interceptor";
 import {extractImageName, formatPrice} from "../../utilities/productHelper.tsx";
 import agent from "../../api/agents.ts";
+import NotFoundError from "../../layouts/NotFoundError.tsx";
 
 export default function ProductDetails(){
     const {id} = useParams< {id: string }>();
@@ -22,7 +23,7 @@ export default function ProductDetails(){
             .finally(() => setLoading(false));
     }, [id]);
     if (loading) return (<h3>Loading Data ...</h3>)
-    if (!product) return (<h2>No product to display</h2>)
+    if (!product) return (<NotFoundError />)
 
     return (
 

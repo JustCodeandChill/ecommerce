@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { Product } from "../../models/product.ts";
 import {setupCache} from "axios-cache-interceptor";
 import {extractImageName, formatPrice} from "../../utilities/productHelper.tsx";
+import agent from "../../api/agents.ts";
 
 export default function ProductDetails(){
     const {id} = useParams< {id: string }>();
@@ -12,13 +13,11 @@ export default function ProductDetails(){
 
     const [product, setProduct] = useState<Product | null>();
     const [loading, setLoading] = useState<boolean>(true);
-    const axiosInstance = Axios.create();
-    const axios = setupCache(axiosInstance);
 
     useEffect(() => {
         setLoading(true);
-        axios.get(`http://localhost:8081/api/products/${id}`)
-            .then(response => setProduct(response.data))
+        id && agent.Store.getProduct(parseInt(id))
+            .then(response => setProduct(response))
             .catch(error => console.log(error))
             .finally(() => setLoading(false));
     }, [id]);

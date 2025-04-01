@@ -1,4 +1,8 @@
-import axios, {AxiosResponse} from "axios";
+import Axios, {AxiosResponse} from "axios";
+import {setupCache} from "axios-cache-interceptor";
+
+const axiosInstance = Axios.create();
+const axios = setupCache(axiosInstance);
 
 axios.defaults.baseURL = 'http://localhost:8081/api/';
 
@@ -12,8 +16,8 @@ const requests = {
 }
 
 const Store = {
-    list: () => requests.get('products'),
-    get: (id: number | string) => requests.get(`product/${id}`)
+    list: () => requests.get('products/'),
+    getProduct: (id: number | string) => requests.get(`products/${id}`)
 }
 
 const agent = {

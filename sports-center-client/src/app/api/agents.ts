@@ -1,6 +1,6 @@
 import Axios, {AxiosError, AxiosResponse} from "axios";
 import {setupCache} from "axios-cache-interceptor";
-import {useNavigate} from "react-router-dom";
+import {router} from "../router/Routes.tsx";
 
 const axiosInstance = Axios.create();
 const axios = setupCache(axiosInstance);
@@ -17,11 +17,11 @@ axios.interceptors.response.use(async (response) => {
     switch (status) {
         case 404:
             console.log("Resources not found");
-            navigate('not-found');
+            router.navigate('not-found');
             break;
         case 500:
             console.log("Internal server error");
-            navigate('/server-error');
+            router.navigate('/server-error');
             break;
         default:
             break;

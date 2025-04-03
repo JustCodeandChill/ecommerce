@@ -7,6 +7,7 @@ import {setupCache} from "axios-cache-interceptor";
 import {extractImageName, formatPrice} from "../../utilities/productHelper.tsx";
 import agent from "../../api/agents.ts";
 import NotFoundError from "../../layouts/NotFoundError.tsx";
+import Spinner from "../../layouts/Spinner.tsx";
 
 export default function ProductDetails(){
     const {id} = useParams< {id: string }>();
@@ -22,7 +23,7 @@ export default function ProductDetails(){
             .catch(error => console.log(error))
             .finally(() => setLoading(false));
     }, [id]);
-    if (loading) return (<h3>Loading Data ...</h3>)
+    if (loading) return (<Spinner message={"Loading product"} />)
     if (!product) return (<NotFoundError />)
 
     return (

@@ -20,6 +20,11 @@ public class BrandServiceImpl implements BrandService {
         this.brandRepository = brandRepository;
     }
 
+    /**
+     * Gets all the brands.
+     *
+     * @return A list of all the BrandResponse objects.
+     */
     @Override
     public List<BrandResponse> getAllBrands() {
         log.info("Fetching all brands!");
@@ -32,6 +37,11 @@ public class BrandServiceImpl implements BrandService {
         return brandResponses;
     }
 
+    /**
+     * Convert a {@link Brand} entity to a {@link BrandResponse} for exposing to the outside world.
+     * @param brand The brand to convert.
+     * @return The converted response.
+     */
     private BrandResponse convertToBrandResponse(Brand brand) {
         return BrandResponse.builder().id(brand.getId()).name(brand.getName()).build();
     }

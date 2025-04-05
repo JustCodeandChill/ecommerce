@@ -34,7 +34,7 @@ public class BasketController {
         return basketService.getBasketById(basketId);
     }
 
-    @DeleteMapping("/{basketId")
+    @DeleteMapping("/{basketId}")
     public void deleteBasketById(@PathVariable String basketId) {
         basketService.deleteBasketById(basketId);
     }

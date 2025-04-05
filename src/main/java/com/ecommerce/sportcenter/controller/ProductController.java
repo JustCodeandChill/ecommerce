@@ -37,7 +37,7 @@ public class ProductController {
         return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/")
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @RequestParam(name = "page", defaultValue = "0") int pageIndex,
             @RequestParam(name = "size", defaultValue = "10") int size,

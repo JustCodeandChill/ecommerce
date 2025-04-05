@@ -1,25 +1,11 @@
 import {Product} from "../../models/product.ts";
 import {Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Typography} from "@mui/material";
+import {Link} from "react-router-dom";
+import {extractImageName, formatPrice} from "../../utilities/productHelper.tsx";
 interface Props {
     product: Product
 }
 export default function ProductCard({product}: Props) {
-    const extractImageName = (item: Product): string | null => {
-        if (item != null && item.imageUrl != null) {
-            const part = item.imageUrl.split('/');
-            if (part.length > 0) {
-                return part[part.length - 1];
-            }
-        }
-        return null;
-    }
-
-    const formatPrice = (price: number): string => {
-        return new Intl.NumberFormat("en-US", {
-            style: 'currency',
-            currency: 'USD'
-        }).format(price);
-    }
     return (
         <Card>
             <CardHeader avatar={
@@ -44,7 +30,7 @@ export default function ProductCard({product}: Props) {
                 </Typography>
             </CardContent>
             <CardActions>
-                <Button size="small">Add to cart</Button>
+                <Button size="small" component={Link} to={`/store/${product.id}`}>Add to cart</Button>
                 <Button size="small">View</Button>
             </CardActions>
         </Card>

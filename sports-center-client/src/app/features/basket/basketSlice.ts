@@ -1,4 +1,5 @@
-import {Basket} from "../../../models/basket";
+import {Basket} from "../../models/basket";
+import {createSlice} from "@reduxjs/toolkit";
 
 interface BasketState {
     basket: Basket | null;

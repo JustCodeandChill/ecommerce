@@ -1,5 +1,6 @@
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import {configureStore} from "@reduxjs/toolkit";
+import {basketSlice} from "../features/basket/basketSlice.ts";
 
 export const store = configureStore({
     reducer: {

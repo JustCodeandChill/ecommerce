@@ -1,6 +1,8 @@
 import {AppBar, Badge, Box, IconButton, List, ListItem, Switch, Toolbar, Typography} from "@mui/material";
 import {Link, NavLink} from "react-router-dom";
 import {ShoppingCart} from "@mui/icons-material";
+import {useAppSelector} from "../store/configreStore.ts";
+import {useEffect} from "react";
 
 interface Props {
     darkMode: boolean;
@@ -31,6 +33,15 @@ const navStyles = {
     }
 }
 const Header = ({darkMode, handleThemeChange}: Props) => {
+    const {basket} = useAppSelector(state => state.basket);
+
+    useEffect(() => {
+        console.log("basket items", basket?.items);
+    }, [basket]);
+
+    const itemCount = basket?.items?.reduce((acc, item) => {
+        return acc + item.quantity;
+    }, 0) || 0;
     return (
       <AppBar position="sticky" sx={{mb: 2}}>
          <Toolbar variant="dense" sx={{
@@ -56,7 +67,7 @@ const Header = ({darkMode, handleThemeChange}: Props) => {
 
              <Box display={'flex'} alignItems={'center'}>
                  <IconButton component={Link} to={'/basket'} size="large" edge="start" color={"inherit"} sx={{mr: 2}}>
-                     <Badge badgeContent={'4'} color={"secondary"}>
+                     <Badge badgeContent={itemCount} color={"secondary"}>
                          <ShoppingCart/>
                      </Badge>
                  </IconButton>

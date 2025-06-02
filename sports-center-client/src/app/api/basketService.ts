@@ -206,3 +206,5 @@ class BasketService {
         }
     }
 }
+
+export default new BasketService();

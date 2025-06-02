@@ -2,6 +2,10 @@ import Axios, {AxiosError, AxiosResponse} from "axios";
 import {setupCache} from "axios-cache-interceptor";
 import {router} from "../router/Routes.tsx";
 import {toast} from "react-toastify";
+import basketService from "./basketService.ts";
+import {Dispatch} from "redux";
+import {Product} from "../models/product.ts";
+import {Basket} from "../models/basket.ts";
 
 const axiosInstance = Axios.create();
 const axios = setupCache(axiosInstance);
@@ -43,8 +47,68 @@ const Store = {
     getProduct: (id: number | string) => requests.get(`products/${id}`)
 }
 
+const Basket = {
+    get: async() => {
+        try {
+            return await basketService.getBasket();
+        } catch (error) {
+            throw new Error("Failed to get basket" + error);
+        }
+    },
+    addItem: async(product: Product, dispatch: Dispatch) => {
+        try {
+            const result = await basketService.addItemToBasket(product, 1, dispatch);
+            console.log(result);
+            return result;
+        } catch (error) {
+            throw new Error("Failed to add item to basket" + error);
+        }
+    },
+    removeItem: async (itemId: number, dispatch: Dispatch)=>{
+        try{
+            await basketService.removeItemFromBasket(itemId, dispatch);
+        }catch(error){
+            console.error("Failed to remove an item from basket:", error);
+            throw error;
+        }
+    },
+    incrementItemQuantity: async (itemId: number, quantity: number = 1, dispatch: Dispatch) => {
+        try {
+            await basketService.incrementItemQuantity(itemId, quantity, dispatch);
+        } catch (error) {
+            console.error("Failed to increment item quantity in basket:", error);
+            throw error;
+        }
+    },
+    decrementItemQuantity: async (itemId: number, quantity: number = 1, dispatch: Dispatch) => {
+        try {
+            await basketService.decrementItemQuantity(itemId, quantity, dispatch);
+        } catch (error) {
+            console.error("Failed to decrement item quantity in basket:", error);
+            throw error;
+        }
+    },
+    setBasket: async (basket: Basket, dispatch: Dispatch) => {
+        try {
+            await basketService.setBasket(basket, dispatch);
+        } catch (error) {
+            console.error("Failed to set basket:", error);
+            throw error;
+        }
+    },
+    deleteBasket: async(basketId: string) =>{
+        try{
+            await basketService.deleteBasket(basketId);
+        } catch(error){
+            console.log("Failed to delete the Basket");
+            throw error;
+        }
+    }
+}
+
 const agent = {
-    Store
+    Store,
+    Basket
 }
 
 export default agent;

@@ -17,3 +17,13 @@ export interface BasketTotals{
     subTotal: number;
     total: number;
 }
+
+// export interface Product {
+//     id: number
+//     name: string
+//     description: string
+//     price: number
+//     imageUrl: string
+//     brandName: string
+//     typeName: string
+// }

@@ -5,174 +5,72 @@ import {Product} from "../models/product.ts";
 import {setBasket} from "../features/basket/basketSlice.ts";
 import {createId} from "@paralleldrive/cuid2";
 
-function createUUID() {
-    return createId();
-}
-
 class BasketService {
-    apiUrl = "http://localhost:8081/api/basket";
+    apiUrl = "http://localhost:8081/api/baskets";
 
     async getBasketFromApi(){
-        try {
+        try{
             const response = await axios.get<Basket>(`${this.apiUrl}`);
             return response.data;
-        } catch (error) {
-            throw new Error("Failed to get basket");
+        }catch(error){
+            throw new Error("Failed to retrieve the basket.")
         }
     }
-    /**
-     * Get the current basket from the API.
-     *
-     * @returns {Promise<Basket>} The current basket.
-     */
-     getBasket() {
-        try {
-            const basketString = localStorage.getItem("basket");
-            if (basketString) {
-                return JSON.parse(basketString) as Basket;
-            } else {
+
+    async getBasket(){
+        try{
+            const basket = localStorage.getItem('basket');
+            if(basket){
+                return JSON.parse(basket) as Basket;
+            }else {
                 throw new Error("Basket not found in local storage");
             }
-        } catch (error) {
-            throw new Error("Failed to get basket " + error);
+        } catch(error){
+            throw new Error("Failed to retrieve the basket: " + error);
         }
     }
-    /**
-     * Returns the current basket, if it exists, from local storage.
-     *
-     * @returns {Promise<Basket | null>} The current basket, or null if no basket exists.
-     */
-    private getCurrentBasketFromCache() {
-        const basket = localStorage.getItem("basket");
-        return basket ? JSON.parse(basket) as Basket : null;
-    }
 
-    /**
-     * get basket from local storage, crate new basket if not exist
-     * basket.items holds all the items in the basket
-     * Returns the current basket.
-     * Architecture decision: Centralize around Redux, and hydrate it from localStorage on app startup.
-     * @returns {Promise<Basket>} The current basket.
-     */
-    async addItemToBasket(item: Product, quantity: number = 1, dispatch : Dispatch) {
-        try {
-            // hydrate the basket
-            let basket = await this.getCurrentBasketFromCache();
-            if (!basket) {
-                basket = await this.createNewBasket();
+    async addItemToBasket(item: Product, quantity = 1, dispatch: Dispatch){
+        try{
+            let basket = this.getCurrentBasket();
+            if(!basket){
+                basket = await this.createBasket();
             }
             const itemToAdd = this.mapProductToBasket(item);
-            basket.items = this.upsertItem(basket.items,itemToAdd, quantity);
-            await this.setBasket(basket, dispatch);
-
-            // calculate totals
+            basket.items = this.upsertItems(basket.items, itemToAdd, quantity);
+            this.setBasket(basket, dispatch);
+            //calculate totals
             const totals = this.calculateTotals(basket);
-            return {basket,totals};
-        } catch (error) {
-            throw new Error("Failed to get basket " + error);
+            return {basket, totals};
+        }catch(error){
+            throw new Error("Failed to add and intem to Basket.")
         }
-
     }
 
-
-
-    /**
-     * Creates a new basket.
-     *
-     * @returns {Promise<Basket>} The new basket.
-     */
-    private async createNewBasket(): Promise<Basket> {
-        try {
-            const newBasket : Basket = {
-                id: createUUID(),
-                items: []
+    async remove(itemId: number, dispatch: Dispatch){
+        const basket = this.getCurrentBasket();
+        if(basket){
+            const itemIndex = basket.items.findIndex((p)=>p.id === itemId);
+            if(itemIndex!==-1){
+                basket.items.splice(itemIndex, 1);
+                this.setBasket(basket, dispatch);
             }
-            localStorage.setItem("basket_id", newBasket.id );
-            return newBasket;
-        } catch (error) {
-            throw new Error("Failed to create basket");
-        }
-    }
-    /**
-     * Maps a product to a basket item because product and basket may share a few properties but not exactly matching.
-     *
-     * @param {Product} product - The product to map.
-     * @returns {BasketItem} The mapped basket item.
-     */
-    private mapProductToBasket(product : Product) : BasketItem {
-        return {
-          id: product.id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-            pictureUrl: product.imageUrl,
-          productBrand: product.brandName,
-          productType: product.typeName,
-            quantity: 0,
-        }
-    }
-
-    private upsertItem(items: BasketItem[], itemToAdd : BasketItem, quantity: number) : BasketItem[] {
-    const existingItem = items.find(x => x.id === itemToAdd.id);
-        // Update
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        }
-        // Or insert
-        else {
-            itemToAdd.quantity = quantity;
-            items.push(itemToAdd);
-        }
-    }
-
-    async removeItemFromBasket(itemId: number | string, dispatch: Dispatch) {
-        try {
-            const basket = this.getBasket() as Basket;
-            if (basket) {
-                const itemIndex = basket.items.findIndex((i) => i.id === itemId);
-
-                if (itemIndex != -1) {
-                    basket.items.splice(itemIndex, 1);
-                    this.setBasket(basket, dispatch);
-                }
-
-                // if there is no more item in the basket
-                if (basket.items.length === 0) {
-                    localStorage.removeItem("basket");
-                    localStorage.removeItem("basket_id");
-                }
+            //check if basket is empty after removing the item
+            if(basket.items.length === 0){
+                //clear the the basket from the local storage
+                localStorage.removeItem('basket_id');
+                localStorage.removeItem('basket');
             }
-        } catch (error) {
-            throw new Error("Failed to remove item from basket");
         }
     }
 
-    async deleteBasket(basketId: string): Promise<void> {
-        try {
-            await axios.delete(`${this.apiUrl}/${basketId}`);
-        } catch (error) {
-            throw new Error("Failed to delete basket");
-        }
-    }
-
-    async setBasket(basket: Basket, dispatch : Dispatch) {
-        try {
-            await axios.post<Basket>(this.apiUrl, basket);
-            localStorage.setItem("basket", JSON.stringify(basket));
-            dispatch(setBasket(basket));
-        } catch (error) {
-            throw new Error("Failed to set basket");
-        }
-    }
-    async incrementItemQuantity(itemId: number, quantity: number = 1, dispatch : Dispatch) {
-        const basket = this.getCurrentBasketFromCache();
-        if (basket) {
-            const item : BasketItem | undefined = basket.items.find((i ) => i.id === itemId);
-
-            if (item) {
+    async incrementItemQuantity(itemId: number, quantity:number = 1, dispatch: Dispatch){
+        const basket = this.getCurrentBasket();
+        if(basket){
+            const item = basket.items.find((p)=>p.id === itemId);
+            if(item){
                 item.quantity += quantity;
-                // because quantity can't be less than 1
-                if (item.quantity < 1) {
+                if(item.quantity<1){
                     item.quantity = 1;
                 }
                 this.setBasket(basket, dispatch);
@@ -180,30 +78,79 @@ class BasketService {
         }
     }
 
-    async decrementItemQuantity(itemId: number, quantity: number = 1, dispatch : Dispatch) {
-        const basket = this.getCurrentBasketFromCache();
-        if (basket) {
-            const item : BasketItem | undefined = basket.items.find((i ) => i.id === itemId);
-
-            if (item && item.quantity > 1) {
+    async decrementItemQuantity(itemId: number, quantity:number = 1, dispatch: Dispatch){
+        const basket = this.getCurrentBasket();
+        if(basket){
+            const item = basket.items.find((p)=>p.id === itemId);
+            if(item && item.quantity >1){
                 item.quantity -= quantity;
                 this.setBasket(basket, dispatch);
             }
         }
     }
 
-    private calculateTotals = (basket:Basket) : BasketTotals => {
-        const shipping = 0;
-        const subTotal = basket.items.reduce((acc,item) =>
-            acc + (item.price * item.quantity),0);
-
-
-        const total = shipping + subTotal;
-        return {
-            shipping,
-            subTotal,
-            total
+    async deleteBasket(basketId: string):Promise<void>{
+        try{
+            await axios.delete(`${this.apiUrl}/${basketId}`);
+        }catch(error){
+            throw new Error("Failed to delete the basket.")
         }
+    }
+
+    async setBasket(basket: Basket, dispatch: Dispatch){
+        try{
+            await axios.post<Basket>(this.apiUrl, basket);
+            localStorage.setItem('basket', JSON.stringify(basket));
+            dispatch(setBasket(basket));
+        }catch(error){
+            throw new Error("Failed to update basket.")
+        }
+    }
+
+    private getCurrentBasket() {
+        const basket = localStorage.getItem('basket');
+        return basket ? JSON.parse(basket) as Basket : null;
+    }
+
+    private async createBasket(): Promise<Basket>{
+        try{
+            const newBasket: Basket = {
+                id: createId(),
+                items: []
+            }
+            localStorage.setItem('basket_id', newBasket.id);
+            return newBasket;
+        }catch(error){
+            throw new Error("Failed to create Basket.");
+        }
+    }
+    private mapProductToBasket(item: Product): BasketItem {
+        return {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            description: item.description,
+            quantity: 0,
+            pictureUrl: item.imageUrl,
+            productBrand: item.brandName,
+            productType: item.typeName
+        };
+    }
+    private upsertItems(items: BasketItem[], itemTotAdd: BasketItem, quantity: number): BasketItem[]{
+        const existingItem = items.find(x=>x.id == itemTotAdd.id);
+        if(existingItem){
+            existingItem.quantity += quantity;
+        }else{
+            itemTotAdd.quantity = quantity;
+            items.push(itemTotAdd);
+        }
+        return items;
+    }
+    private calculateTotals(basket: Basket): BasketTotals{
+        const shipping = 0;
+        const subTotal = basket.items.reduce((acc, item)=>acc+(item.price*item.quantity), 0);
+        const total = shipping + subTotal;
+        return { shipping, subTotal, total};
     }
 }
 

@@ -39,7 +39,7 @@ public class BasketController {
         basketService.deleteBasketById(basketId);
     }
 
-    @PostMapping("/createBasket")
+    @PostMapping
     public ResponseEntity<BasketResponse> createBasket(@RequestBody BasketResponse basketResponse) {
         Basket basket = convertToBasketEntity(basketResponse);
         BasketResponse response = basketService.createBasket(basket);

@@ -66,7 +66,7 @@ const Basket = {
     },
     removeItem: async (itemId: number, dispatch: Dispatch)=>{
         try{
-            await basketService.removeItemFromBasket(itemId, dispatch);
+            await basketService.remove(itemId, dispatch);
         }catch(error){
             console.error("Failed to remove an item from basket:", error);
             throw error;

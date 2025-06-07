@@ -44,7 +44,14 @@ const requests = {
 
 const Store = {
     list: () => requests.get('products/'),
-    getProduct: (id: number | string) => requests.get(`products/${id}`)
+    getProduct: (id: number | string) => requests.get(`products/${id}`),
+    details: (id: number) => requests.get(`products/${id}`),
+    types: () => requests.get('products/types')
+        .then(types => [{id: 0, name: 'All'}, ...types]),
+    brands: () => requests.get('products/brands')
+        .then(types => [{id: 0, name: 'All'}, ...types]),
+    search: (keyword: string) => requests.get(`products?keyword=${keyword}`),
+
 }
 
 const Basket = {

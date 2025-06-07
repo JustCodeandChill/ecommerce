@@ -31,8 +31,7 @@ export default function ProductCard({product}: Props) {
                 dispatch(setBasket(response.basket));
             })
             .catch(error=>console.log(error))
-            .finally(()=>setLoading(false));
-    }
+            .finally(()=>setLoading(false));}
     return (
         <Card>
             <CardHeader avatar={

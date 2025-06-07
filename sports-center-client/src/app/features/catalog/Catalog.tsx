@@ -3,11 +3,12 @@ import {Product} from "../../models/product.ts";
 import ProductList from "./ProductList.tsx";
 import agents from "../../api/agents.ts";
 import Spinner from "../../layouts/Spinner.tsx";
-import {Grid, Paper, TextField} from "@mui/material";
+import {FormControl, FormLabel, Grid, Paper, RadioGroup, TextField} from "@mui/material";
 
 const Catalog = ()=> {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+
 
     useEffect(() => {
         setLoading(true);
@@ -38,6 +39,26 @@ const Catalog = ()=> {
                             }
                         }}
                     />
+                </Paper>
+                <Paper sx={{ mb: 2, p: 2 }}>
+                    <FormControl>
+                        <FormLabel id="sort-by-name-label">Sort by Name</FormLabel>
+                        <RadioGroup
+                            aria-label="sort-by-name"
+                            name="sort-by-name"
+                            //value={selectedSort}
+                            // onChange={handleSortChange}
+                        >
+                            {/*{sortOptions.map(({ value, label }) => (*/}
+                            {/*    <FormControlLabel*/}
+                            {/*        key={value}*/}
+                            {/*        value={value}*/}
+                            {/*        control={<Radio />}*/}
+                            {/*        label={label}*/}
+                            {/*    />*/}
+                            {/*))}*/}
+                        </RadioGroup>
+                    </FormControl>
                 </Paper>
             </Grid>
             <Grid size={9}>

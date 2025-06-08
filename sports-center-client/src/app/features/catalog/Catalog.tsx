@@ -20,13 +20,22 @@ const Catalog = ()=> {
 
     useEffect(() => {
         setLoading(true);
-        agents.Store.list()
-            .then((products) => setProducts(products.content))
+        Promise.all([
+            agents.Store.list(),
+            agents.Store.brands(),
+            agents.Store.types()
+        ]).then(([productResponse, brandResponse, typeResponse]) => {
+            console.log(productResponse, brandResponse);
+            setProducts(productResponse.content);
+            setBrands(brandResponse);
+            setTypes(typeResponse);
+        })
             .catch(error => console.log(error))
             .finally(() => {
                 setLoading(false);
             })
     }, []);
+    const loadProducts = (selectedSort, searchKeyword='') =>{
         setLoading(true);
         // let page = currentPage -1;
         // let size = pageSize;
@@ -63,6 +72,26 @@ const Catalog = ()=> {
                 .finally(()=> setLoading(false));
         }
     }
+
+    const handleSortChange = (event) => {
+        const selectedSort = event.target.value;
+        setSelectedSort(selectedSort);
+    }
+
+    const handleBrandChange = (event) => {
+        const selectedBrandId = event.target.value;
+        setSelectedBrandId(selectedBrandId);
+    }
+
+    const handleTypeChange = (event) => {
+        const selectedTypeId = event.target.value;
+        setSelectedTypeId(selectedTypeId);
+    }
+
+    //Trigger load product when brandId and typeId changes
+    useEffect(() => {
+        loadProducts(selectedSort);
+    }, [selectedBrandId, selectedTypeId, selectedSort]);
 
     if (!products) return <h3>No Product to show</h3>
     if (loading) return <Spinner message={"Loading list of products"} />

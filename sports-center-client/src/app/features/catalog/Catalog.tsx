@@ -27,6 +27,42 @@ const Catalog = ()=> {
                 setLoading(false);
             })
     }, []);
+        setLoading(true);
+        // let page = currentPage -1;
+        // let size = pageSize;
+        let brandId = selectedBrandId !==0 ? selectedBrandId : undefined;
+        let typeId = selectedTypeId !==0 ? selectedTypeId : undefined;
+        const sort = "name";
+        const order = selectedSort === "desc" ? "desc" : "asc";
+        //construct the url
+        let url = `${agents.Store.apiUrl}?sort=${sort}&order=${order}`;
+        if(brandId !== undefined || typeId !== undefined){
+            url+='&';
+            if(brandId!== undefined) url += `brandId=${brandId}&`;
+            if(typeId!== undefined) url += `typeId=${typeId}&`;
+            //Remove trailing &
+            url = url.replace(/&$/, "");
+        }
+        //Make the API request with the url
+        if(searchKeyword){
+            console.log(searchKeyword);
+            agents.Store.search(searchKeyword)
+                .then((productsRes)=>{
+                    setProducts(productsRes.content);
+                    // setTotaItems(productsRes.length);
+                })
+                .catch((error)=>console.error(error))
+                .finally(()=> setLoading(false));
+        }else{
+            agents.Store.list( undefined, undefined, url)
+                .then((productsRes)=>{
+                    setProducts(productsRes.content);
+                    // setTotaItems(productsRes.totalElements);
+                })
+                .catch((error)=>console.error(error))
+                .finally(()=> setLoading(false));
+        }
+    }
 
     if (!products) return <h3>No Product to show</h3>
     if (loading) return <Spinner message={"Loading list of products"} />

@@ -4,11 +4,19 @@ import ProductList from "./ProductList.tsx";
 import agents from "../../api/agents.ts";
 import Spinner from "../../layouts/Spinner.tsx";
 import {FormControl, FormLabel, Grid, Paper, RadioGroup, TextField} from "@mui/material";
+import Brand from "../../models/brand.ts";
+import Type from "../../models/type.ts";
 
 const Catalog = ()=> {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-
+    const [brands, setBrands] = useState<Brand[]>();
+    const [types, setTypes] = useState<Type[]>();
+    const [selectedSort, setSelectedSort] = useState<string>('asc');
+    const [selectedBrand, setSelectedBrand] = useState<string>('All');
+    const [selectedType, setSelectedType] = useState<string>("All");
+    const [selectedBrandId, setSelectedBrandId] = useState<string | number>(0);
+    const [selectedBrandId, setSelectedTypeId] = useState<string | number>(0);
 
     useEffect(() => {
         setLoading(true);

@@ -37,13 +37,24 @@ axios.interceptors.response.use(async (response) => {
 
 const requests = {
     get: (url: string) => axios.get(url).then(responseBody),
-    post: (url: string, body: object)=> axios.post(url, body).then(responseBody),
+    post: (url: string, body: object) => axios.post(url, body).then(responseBody),
     put: (url: string, body: object) => axios.put(url, body).then(responseBody),
     delete: (url: string) => axios.delete(url).then(responseBody)
 }
 
 const Store = {
-    list: () => requests.get('products/'),
+    apiUrl: 'http://localhost:8081/api/products',
+    list: (page: number = 1, size: number = 10, brandId?: number, typeId?: number, url?: string) => {
+        let requestUrl = url || `products?page=${page - 1}&size=${size}`;
+        if (brandId != undefined) {
+            requestUrl += `&brandId=${brandId}`;
+        }
+
+        if (typeId != undefined) {
+            requestUrl += `&typeId=${typeId}`;
+        }
+        return requests.get(requestUrl);
+    },
     getProduct: (id: number | string) => requests.get(`products/${id}`),
     details: (id: number) => requests.get(`products/${id}`),
     types: () => requests.get('products/types')
@@ -55,14 +66,14 @@ const Store = {
 }
 
 const Basket = {
-    get: async() => {
+    get: async () => {
         try {
             return await basketService.getBasket();
         } catch (error) {
             throw new Error("Failed to get basket" + error);
         }
     },
-    addItem: async(product: Product, dispatch: Dispatch) => {
+    addItem: async (product: Product, dispatch: Dispatch) => {
         try {
             const result = await basketService.addItemToBasket(product, 1, dispatch);
             console.log(result);
@@ -71,10 +82,10 @@ const Basket = {
             throw new Error("Failed to add item to basket" + error);
         }
     },
-    removeItem: async (itemId: number, dispatch: Dispatch)=>{
-        try{
+    removeItem: async (itemId: number, dispatch: Dispatch) => {
+        try {
             await basketService.remove(itemId, dispatch);
-        }catch(error){
+        } catch (error) {
             console.error("Failed to remove an item from basket:", error);
             throw error;
         }
@@ -103,10 +114,10 @@ const Basket = {
             throw error;
         }
     },
-    deleteBasket: async(basketId: string) =>{
-        try{
+    deleteBasket: async (basketId: string) => {
+        try {
             await basketService.deleteBasket(basketId);
-        } catch(error){
+        } catch (error) {
             console.log("Failed to delete the Basket");
             throw error;
         }

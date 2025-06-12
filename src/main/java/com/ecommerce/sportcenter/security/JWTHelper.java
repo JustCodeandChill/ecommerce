@@ -15,14 +15,23 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class JWTHelper {
-    public static final long JWT_TOKEN_VALIDITY = 5*60*60;
+    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
     private String secret = "f27dacd186810e78c0fd8ba65ecf3f1524ff087c5e86773d5172d424b3fd201f";
+
     private String getUserNameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
+
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
+
+    private boolean isTokenExpired(String token) {
+        final Date exp = getExpirationDateFromToken(token);
+        return exp.before(new Date());
+    }
+
+
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return generateToken(claims, userDetails.getUsername());
@@ -33,7 +42,7 @@ public class JWTHelper {
         return Jwts.builder().setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY*1000))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(hmacKey).compact();
     }
 
@@ -47,5 +56,12 @@ public class JWTHelper {
         Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(hmacKey).build().parseClaimsJws(token);
         return claimsJws.getBody();
     }
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = getUserNameFromToken(token);
+        // match username and not an expired token
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
 
 }
